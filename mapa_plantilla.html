@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pases sobre la estación</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --bg:#f6f7f9; --panel:#fff; --txt:#1d2430; --sub:#5b6575; --borde:#dde1e7; --prio:#c2410c; --otro:#2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#12151b; --panel:#1b2029; --txt:#e6e9ef; --sub:#9aa3b2; --borde:#2c3340; --prio:#fb923c; --otro:#60a5fa; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 system-ui, sans-serif; background:var(--bg); color:var(--txt); display:flex; height:100vh; }
+  #mapa { flex:1; }
+  aside { width:340px; overflow:auto; background:var(--panel); border-left:1px solid var(--borde); padding:14px; }
+  h1 { font-size:16px; margin:0 0 4px; }
+  .sub { color:var(--sub); font-size:12px; margin-bottom:12px; }
+  .sat { padding:8px; border:1px solid var(--borde); border-radius:6px; margin-bottom:8px; cursor:pointer; }
+  .sat:hover { border-color:var(--otro); }
+  .sat b { display:block; }
+  .sat.prio b { color:var(--prio); }
+  .sat span { color:var(--sub); font-size:12px; display:block; }
+  @media (max-width:700px) { body { flex-direction:column; } aside { width:auto; height:40vh; border-left:0; border-top:1px solid var(--borde); } }
+</style>
+</head>
+<body>
+<div id="mapa"></div>
+<aside>
+  <h1 id="titulo"></h1>
+  <div class="sub" id="info"></div>
+  <div id="lista"></div>
+</aside>
+<script>
+const D = /*DATOS*/null;
+const css = getComputedStyle(document.documentElement);
+const cPrio = css.getPropertyValue('--prio').trim(), cOtro = css.getPropertyValue('--otro').trim();
+const est = D.estacion;
+const mapa = L.map('mapa', { worldCopyJump:true }).setView([est.lat, est.lon], 3);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:8, attribution:'© OpenStreetMap' }).addTo(mapa);
+L.marker([est.lat, est.lon]).addTo(mapa).bindPopup(`<b>${est.nombre || 'Estación'}</b><br>${est.lat.toFixed(4)}, ${est.lon.toFixed(4)}`);
+document.getElementById('titulo').textContent = est.nombre || 'Estación terrena';
+document.getElementById('info').textContent = `Generado ${D.generado} · pases en las próximas ${D.horas} h · traza: -10 a +100 min`;
+const lista = document.getElementById('lista');
+for (const s of D.sats) {
+  const color = s.prio ? cPrio : cOtro;
+  const g = L.layerGroup().addTo(mapa);
+  s.trazas.forEach(seg => L.polyline(seg, { color, weight:2, opacity:.8 }).addTo(g));
+  L.circle(s.ahora, { radius:s.huella_km*1000, color, weight:1, fillOpacity:.08 }).addTo(g);
+  const m = L.circleMarker(s.ahora, { radius:5, color, fillColor:color, fillOpacity:1 }).addTo(g)
+    .bindPopup(`<b>${s.nombre}</b> (${s.norad})<br>Alt ${s.alt_km} km<br>AOS ${s.aos} · LOS ${s.los}<br>El máx ${s.el_max}°<br>${s.bajada} ${s.modo}`);
+  m.bindTooltip(s.nombre, { permanent:false });
+  const div = document.createElement('div');
+  div.className = 'sat' + (s.prio ? ' prio' : '');
+  div.innerHTML = `<b></b><span></span><span></span>`;
+  div.children[0].textContent = `${s.nombre} · ${s.norad}`;
+  div.children[1].textContent = `AOS ${s.aos} → LOS ${s.los} · El máx ${s.el_max}°`;
+  div.children[2].textContent = `${s.bajada} ${s.modo}`;
+  div.onclick = () => { mapa.setView(s.ahora, 4); m.openPopup(); };
+  lista.appendChild(div);
+}
+</script>
+</body>
+</html>

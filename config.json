@@ -1,0 +1,28 @@
+{
+  "_comentario": "Configuracion de la estacion terrena. Si 'estacion' tiene null en lat/lon se lee la ubicacion de Orbitron.",
+  "estacion": {
+    "nombre": "Estación Terrena U. Sergio Arboleda - Bogotá",
+    "lat": null,
+    "lon": null,
+    "alt_m": null
+  },
+  "elevacion_minima_deg": 10,
+  "margen_reapuntado_s": 120,
+  "bandas_mhz": [
+    [137.0, 138.0],
+    [144.0, 148.0],
+    [430.0, 440.0],
+    [2200.0, 2300.0]
+  ],
+  "satelites_objetivo": [39084, 49260, 25544],
+  "solo_objetivo_en_orbitron": true,
+  "cache_horas": 6,
+  "orbitron": {
+    "exe": "C:\\Program Files (x86)\\Orbitron\\Orbitron.exe",
+    "driver": "WispDDE",
+    "wispdde_exe": "C:\\Program Files (x86)\\wispdde\\wispdde.exe",
+    "archivo_tle": "satnogs.txt",
+    "autoseleccion_en_aos": true,
+    "arrancar_driver": true
+  }
+}

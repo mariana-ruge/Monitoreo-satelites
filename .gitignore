@@ -1,0 +1,12 @@
+# Secretos (API key de SatNOGS)
+.env
+.env.*
+!.env.example
+
+# Cache de SatNOGS DB y salidas generadas
+data/
+salida/
+
+# Python
+__pycache__/
+*.pyc
